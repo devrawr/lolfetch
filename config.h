@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <functional>
 #include <algorithm>
+#include "color.h"
+#include <map>
 
 class OperatingSystem
 {
@@ -30,23 +32,16 @@ class OperatingSystem
             {
                 std::string ascii_line = ascii[i];
 
-                // if there are less details than lines of ascii,
-                // simply print the current ascii line. we're out of
-                // details
-                if (details.size() < i + 1)
-                {
-                    std::cout << ascii_line << std::endl;
-                }
-                else
-                {
-                    std::string line = ascii_line;
+                // print now, so we don't have to loop twice.
+                std::cout << Color::Modifier(Color::FG_LIGHT_BLUE) << ascii[i] << Color::Modifier(Color::RESET);
 
-                    line += " ";
-                    line += details[i];
-
-                    // print now so we don't have to loop through the vector again
-                    std::cout << line << std::endl;
+                if (details.size() >= i + 1)
+                {
+                    std::cout << " " << details[i];
                 }
+
+                // end the line here (is there a better way to do this? maybe just printf("\n")?)
+                std::cout << std::endl;
             }
         }
 
@@ -85,29 +80,33 @@ class LinuxOperatingSystem : public OperatingSystem
         {
             std::vector<std::string> details;
 
-            details.push_back("id: " + this->id);
+            std::string primary = Color::Modifier(Color::FG_LIGHT_MAGENTA).toUnixColor();
+            std::string secondary = Color::Modifier(Color::RESET).toUnixColor();
+
+            details.push_back(primary + "id: " + secondary + this->id);
 
             if (getenv("SHELL") != nullptr)
             {
-                details.push_back("sh: " + std::string(getenv("SHELL")));
+                details.push_back(primary + "sh: " + secondary + std::string(getenv("SHELL")));
             }
 
             if (getenv("XDG_CURRENT_DESKTOP") != nullptr)
             {
                 std::string desktop = getenv("XDG_CURRENT_DESKTOP");
-                std::transform(desktop.begin(), desktop.end(), desktop.begin(), [](unsigned char c) { return std::tolower(c); });
+                std::transform(desktop.begin(), desktop.end(), desktop.begin(), [](unsigned char c) {
+                    return std::tolower(c);
+                });
 
-                details.push_back("wm: " + desktop);
+                details.push_back(primary + "wm: " + secondary + desktop);
             }
 
             std::string packages = fetch();
 
             if (packages != "none")
             {
-                details.push_back("pkgs: " + packages);
+                details.push_back(primary + "pkgs: " + secondary + packages);
             }
 
-            // todo: implement methods to fetch these details
             return details;
         }
 
