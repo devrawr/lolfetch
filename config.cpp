@@ -2,6 +2,7 @@
 
 const std::string WHITESPACE = " \n\r\t\f\v";
 
+// didn't make this myself! found on github, https://gist.github.com/meritozh/f0351894a2a4aa92871746bf45879157.
 std::string exec(const char* cmd) {
     std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
 
