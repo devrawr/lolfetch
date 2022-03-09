@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <vector>
 #include <memory>
+#include <cstdlib>
+#include <functional>
+#include <algorithm>
 
 class OperatingSystem
 {
@@ -51,28 +54,61 @@ class OperatingSystem
             return false;
         }
 
-        virtual std::vector<std::string> getAsciiArt();
-        virtual std::vector<std::string> getDetails();
+        virtual std::vector<std::string> getAsciiArt() {}
+        virtual std::vector<std::string> getDetails() {}
 };
 
 class LinuxOperatingSystem : public OperatingSystem
 {
+    std::function<std::string()> fetch;
+
     public:
         LinuxOperatingSystem(std::string id, std::string display)
         {
             this->id = id;
             this->display = display;
+
+            // default fetch value, always returns none
+            this->fetch = [=]() -> std::string {
+               return  "none";
+             };
+        }
+
+        LinuxOperatingSystem(std::string id, std::string display, std::function<std::string()> fetch)
+        {
+            this->id = id;
+            this->display = display;
+            this->fetch = fetch;
         }
 
         std::vector<std::string> getDetails() override
         {
+            std::vector<std::string> details;
+
+            details.push_back("id: " + this->id);
+
+            if (getenv("SHELL") != nullptr)
+            {
+                details.push_back("sh: " + std::string(getenv("SHELL")));
+            }
+
+            if (getenv("XDG_CURRENT_DESKTOP") != nullptr)
+            {
+                std::string desktop = getenv("XDG_CURRENT_DESKTOP");
+                std::transform(desktop.begin(), desktop.end(), desktop.begin(), [](unsigned char c) { return std::tolower(c); });
+
+                details.push_back("wm: " + desktop);
+            }
+
+            std::string packages = fetch();
+
+            if (packages != "none")
+            {
+                details.push_back("pkgs: " + packages);
+            }
+
             // todo: implement methods to fetch these details
-            return {
-            "id: " + this->id,
-            "shell: loksh",
-            "wm: gnome-shell",
-            "packages: 73"
-        };
+            return details;
         }
 
         // epic penguin tux ascii art! made by Przemek Borys
