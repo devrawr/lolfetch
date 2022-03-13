@@ -32,7 +32,20 @@ std::string trimRight(std::string str)
 std::vector<OperatingSystem*> getOperatingSystems()
 {
     return {
-    new OperatingSystem("hey", "hey"),
-    new LinuxOperatingSystem("arch", "Arch Linux", [=]() -> std::string { return trimRight(exec("pacman -Qq | wc -l")) + " (pacman)"; })
+    new LinuxOperatingSystem(
+        "arch",
+        "Arch Linux",
+        [=]() -> std::string {
+            return trimRight(exec("pacman -Qq | wc -l")) + " (pacman)";
+        }
+    ),
+
+    new LinuxOperatingSystem(
+        "gentoo",
+        "Gentoo Linux",
+        [=]() -> std::string {
+            return trimRight(exec("ls -d /var/db/pkg/*/* | wc -l"));
+        }
+    )
 };
 }

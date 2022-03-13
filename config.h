@@ -93,9 +93,15 @@ class LinuxOperatingSystem : public OperatingSystem
             if (getenv("XDG_CURRENT_DESKTOP") != nullptr)
             {
                 std::string desktop = getenv("XDG_CURRENT_DESKTOP");
-                std::transform(desktop.begin(), desktop.end(), desktop.begin(), [](unsigned char c) {
-                    return std::tolower(c);
-                });
+
+                std::transform(
+                    desktop.begin(),
+                    desktop.end(),
+                    desktop.begin(),
+                    [](unsigned char c) {
+                        return std::tolower(c);
+                    }
+                );
 
                 details.push_back(primary + "wm: " + secondary + desktop);
             }
